@@ -7,15 +7,36 @@ class DiceRoller:
         """Main method to run the dice roller."""
         print("Welcome to the Dice Roller!")
         while True:
-            num_dice = self.get_user_input("How many dice would you like to roll? (Enter a whole number greater than 0): ", 1)
-            num_sides = self.get_user_input("How many sides should each die have? (Enter a whole number greater than 1): ", 2)
+            multi_dice_prompt = (
+                "Would you like to create and roll multiple different sided dice? "
+                "e.g. A D6 and a D10 (Enter 'y' for yes and 'n' for no)"
+            )
+            multiple_die_types = self.is_one_dice_type(multi_dice_prompt)
+            # if multiple_die_types:
+            #     num_dice_types = 
+            num_dice = self.get_user__num_input("How many dice would you like to roll? (Enter a whole number greater than 0): ", 1)
+            num_sides = self.get_user__num_input("How many sides should each die have? (Enter a whole number greater than 1): ", 2)
 
             self.create_dice(num_dice, num_sides)
             input(f"Press any key to roll your {num_dice} D{num_sides}: ")
             self.roll_dice(num_dice)
             self.ask_to_roll_again()
+    
+    def is_one_dice_type(self, prompt):
+        """Prompt the user for input, validate the responce and send a boolean value back if valid"""
+        while True:
+            try:
+                responce = input(prompt)
+                if responce == "y":
+                    return True
+                elif responce == 'n':
+                    return False
+                else:
+                    raise ValueError("Invalid input! Enter either 'y' or 'n'.")
+            except ValueError as e:
+                print(e)
             
-    def get_user_input(self, prompt, min_value):
+    def get_user__num_input(self, prompt, min_value):
         """Prompt the user for input and validate it as an integer greater than or equal to min_value."""
         while True:
             try:
@@ -25,6 +46,8 @@ class DiceRoller:
                 return value
             except ValueError as e:
                 print(f"Invalid input! Please try again with a valid number.")
+    
+    # def get_user_type_input(self, num_dice)
 
     def create_dice(self, num_dice, num_sides):
         """Create a list of Die objects based on user input."""
