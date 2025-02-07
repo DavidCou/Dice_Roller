@@ -17,8 +17,10 @@ class DiceRoller:
             if multiple_die_types:
                 self.get_dice_types()
                 print(self.dice_type_specs)
+                self.create_multiple_dice_types()
+                print(self.dice_types_lists)
             else:
-                # Prompt the user for the dice specifucations
+                # Prompt the user for the dice specifications
                 num_sides_prompt = "How many dice would you like to roll? (Enter a whole number greater than 0): "
                 num_dice_prompt = "How many sides should each die have? (Enter a whole number greater than 1): "    
                 num_dice = self.get_user_num_input(num_sides_prompt, 1)
@@ -56,10 +58,11 @@ class DiceRoller:
         num_types_prompt = "How many different types of die would you like to roll? (Enter a whole number greater than 1): "
         num_types = self.get_user_num_input(num_types_prompt, 2)
         num_sides_prompt = "How many sides should this die type have? (Enter a whole number greater than 1): "
-        num_dice_prompt = "How many dice of this type would you like to roll? (Enter a whole number greater than 0): "
+        num_dice_prompt = "How many of this die type would you like to roll? (Enter a whole number greater than 0): "
         
         # Collect the specifications for each die type and add them to the dictionary 
-        for i in range(1, num_types):
+        for i in range(1, num_types + 1):
+            print(f"\n-----Die type {i}-----\n")
             num_sides = self.get_user_num_input(num_sides_prompt, 2)
             num_dice = self.get_user_num_input(num_dice_prompt, 1)
             self.dice_type_specs[num_sides] = num_dice
@@ -74,11 +77,18 @@ class DiceRoller:
                 return value
             except ValueError as e:
                 print(f"Invalid input! Please try again with a valid number.")
+    
+    def create_multiple_dice_types(self):
+        """Create a dictionary of single type Die object lists based on user input."""
+        for key, value in self.dice_type_specs.items():
+            self.create_single_dice_type(value, key)  # Populates self.dice
+            self.dice_types_lists[key] = self.dice[:]  # Make a copy of the current dice list
+            self.dice.clear()
 
     def create_single_dice_type(self, num_dice, num_sides):
-        """Create a list of Die objects based on user input."""
+        """Create a list of Die objects of a single type based on user input."""
         from .die import Die  # Import Die class here instead of at the top of the file to avoid circular imports in __init__.py
-        self.dice = [Die(num_sides) for _ in range(num_dice)]
+        return [Die(num_sides) for _ in range(num_dice)]
 
     def roll_single_dice_type(self, num_dice):
         """Roll all dice of a single type."""
