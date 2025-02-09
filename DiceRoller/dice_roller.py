@@ -1,9 +1,7 @@
 class DiceRoller:
     """A class that takes input from a user and creates and rolls dice based on the user input."""
     def __init__(self):
-        self.dice = []
-        self.dice_type_specs = {}
-        self.dice_types_lists = {}
+        pass
 
     def run(self):
         """Main method to run the dice roller."""
@@ -15,10 +13,9 @@ class DiceRoller:
             )
             multiple_die_types = self.get_user_input_y_n(multi_dice_prompt)
             if multiple_die_types:
-                self.get_dice_types()
-                print(self.dice_type_specs)
-                self.create_multiple_dice_types()
-                print(self.dice_types_lists)
+                dice_type_specs = self.get_dice_types()
+                dice_type_lists = self.create_multiple_dice_types(dice_type_specs)
+                self.roll_all_dice(dice_type_lists)
             else:
                 # Prompt the user for the dice specifications
                 num_sides_prompt = "How many dice would you like to roll? (Enter a whole number greater than 0): "
@@ -27,17 +24,11 @@ class DiceRoller:
                 num_sides = self.get_user_num_input(num_dice_prompt, 2)
 
                 # Create and roll the dice
-                self.create_single_dice_type(num_dice, num_sides)
+                dice = self.create_single_dice_type(num_dice, num_sides)
                 input(f"Press any key to roll your {num_dice} D{num_sides}: ")
+                self.roll_dice_and_display_results(num_dice, num_sides, dice)
                 
-                if num_dice > 1:
-                    print(f"Rolling your D{num_sides}s...")
-                    print(f"Your dice rolled a total of {self.roll_single_dice_type(num_dice)}")
-                else:
-                    print(f"Rolling your D{num_sides}...")
-                    print(f"Your die rolled a {self.roll_single_dice_type(num_dice)}")
-                
-                self.ask_to_roll_again()
+            self.ask_to_roll_again()
     
     def get_user_input_y_n(self, prompt):
         """Prompt the user for input, validate the responce and send a boolean value back if valid"""
@@ -53,20 +44,6 @@ class DiceRoller:
             except ValueError as e:
                 print(e)
     
-    def get_dice_types(self):
-        """Prompts the user for their dice types and adds them to a dictionary"""   
-        num_types_prompt = "How many different types of die would you like to roll? (Enter a whole number greater than 1): "
-        num_types = self.get_user_num_input(num_types_prompt, 2)
-        num_sides_prompt = "How many sides should this die type have? (Enter a whole number greater than 1): "
-        num_dice_prompt = "How many of this die type would you like to roll? (Enter a whole number greater than 0): "
-        
-        # Collect the specifications for each die type and add them to the dictionary 
-        for i in range(1, num_types + 1):
-            print(f"\n-----Die type {i}-----\n")
-            num_sides = self.get_user_num_input(num_sides_prompt, 2)
-            num_dice = self.get_user_num_input(num_dice_prompt, 1)
-            self.dice_type_specs[num_sides] = num_dice
-
     def get_user_num_input(self, prompt, min_value):
         """Prompt the user for input and validate it as an integer greater than or equal to min_value."""
         while True:
@@ -77,30 +54,63 @@ class DiceRoller:
                 return value
             except ValueError as e:
                 print(f"Invalid input! Please try again with a valid number.")
-    
-    def create_multiple_dice_types(self):
-        """Create a dictionary of single type Die object lists based on user input."""
-        for key, value in self.dice_type_specs.items():
-            self.create_single_dice_type(value, key)  # Populates self.dice
-            self.dice_types_lists[key] = self.dice[:]  # Make a copy of the current dice list
-            self.dice.clear()
+
+    def get_dice_types(self):
+        """Prompts the user for their dice types and adds them to a dictionary""" 
+        # Set up the user prompts  
+        num_types_prompt = "How many different types of die would you like to roll? (Enter a whole number greater than 1): "
+        num_types = self.get_user_num_input(num_types_prompt, 2)
+        num_sides_prompt = "How many sides should this die type have? (Enter a whole number greater than 1): "
+        num_dice_prompt = "How many of this die type would you like to roll? (Enter a whole number greater than 0): "
+        dice_type_specs = {}
+
+        # Prompt the user of the specifications for each die type and add them to the dictionary 
+        for i in range(1, num_types + 1):
+            print(f"\n-----Die type {i}-----\n")
+            num_sides = self.get_user_num_input(num_sides_prompt, 2)
+            num_dice = self.get_user_num_input(num_dice_prompt, 1)
+            dice_type_specs[num_sides] = num_dice
+        
+        return dice_type_specs
 
     def create_single_dice_type(self, num_dice, num_sides):
         """Create a list of Die objects of a single type based on user input."""
         from .die import Die  # Import Die class here instead of at the top of the file to avoid circular imports in __init__.py
         return [Die(num_sides) for _ in range(num_dice)]
+    
+    def create_multiple_dice_types(self, dice_type_specs):
+        """Create a dictionary of single type Die object lists."""
+        dice_type_lists = {}
+        for key, value in dice_type_specs.items():
+            dice_type_lists[key] = self.create_single_dice_type(value, key)
+        return dice_type_lists
 
-    def roll_single_dice_type(self, num_dice):
+    def roll_single_dice_type(self, num_dice, dice):
         """Roll all dice of a single type."""
         if num_dice > 1:
             roll_total = 0
-            for i, die in enumerate(self.dice, 1):
+            for i, die in enumerate(dice, 1):
                 current_roll = die.roll_die()
                 roll_total += current_roll
                 print(f"Die {i} rolled: {current_roll}")
             return roll_total
         else:
-            return self.dice[0].roll_die()
+            return dice[0].roll_die()
+    
+    def roll_all_dice(self, dice_type_lists):
+        """Roll all of the dice and display the results grouping them by dice type"""
+        for num_sides, dice_list in dice_type_lists.items():
+            num_dice = len(dice_list)
+            self.roll_dice_and_display_results(num_dice, num_sides, dice_list)
+
+    def roll_dice_and_display_results(self, num_dice, num_sides, dice):
+        """Roll the dice of a specified dice type and display the results"""
+        if num_dice > 1:
+            print(f"Rolling your D{num_sides}s...")
+            print(f"Your dice rolled a total of {self.roll_single_dice_type(num_dice, dice)}")
+        else:
+            print(f"Rolling your D{num_sides}...")
+            print(f"Your die rolled a {self.roll_single_dice_type(num_dice, dice)}")
     
     def ask_to_roll_again(self):
         """Ask the user if they want to roll again"""
