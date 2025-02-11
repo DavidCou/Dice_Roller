@@ -5,7 +5,7 @@ class DiceRoller:
 
     def run(self):
         """Main method to run the dice roller."""
-        print("Welcome to the Dice Roller!")
+        print("\nWelcome to the Dice Roller!\n")
         while True:
             multi_dice_prompt = (
                 "Would you like to create and roll multiple different sided dice at the same time? "
@@ -18,14 +18,13 @@ class DiceRoller:
                 self.roll_all_dice(dice_type_lists)
             else:
                 # Prompt the user for the dice specifications
+                num_dice_prompt = "\nHow many sides should each die have? (Enter a whole number greater than 1): "  
                 num_sides_prompt = "How many dice would you like to roll? (Enter a whole number greater than 0): "
-                num_dice_prompt = "How many sides should each die have? (Enter a whole number greater than 1): "    
-                num_dice = self.get_user_num_input(num_sides_prompt, 1)
                 num_sides = self.get_user_num_input(num_dice_prompt, 2)
-
+                num_dice = self.get_user_num_input(num_sides_prompt, 1)
+                
                 # Create and roll the dice
                 dice = self.create_single_dice_type(num_dice, num_sides)
-                input(f"Press any key to roll your {num_dice} D{num_sides}: ")
                 self.roll_dice_and_display_results(num_dice, num_sides, dice)
                 
             self.ask_to_roll_again()
@@ -58,7 +57,7 @@ class DiceRoller:
     def get_dice_types(self):
         """Prompts the user for their dice types and adds them to a dictionary""" 
         # Set up the user prompts  
-        num_types_prompt = "How many different types of die would you like to roll? (Enter a whole number greater than 1): "
+        num_types_prompt = "\nHow many different types of die would you like to roll? (Enter a whole number greater than 1): "
         num_types = self.get_user_num_input(num_types_prompt, 2)
         num_sides_prompt = "How many sides should this die type have? (Enter a whole number greater than 1): "
         num_dice_prompt = "How many of this die type would you like to roll? (Enter a whole number greater than 0): "
@@ -66,11 +65,17 @@ class DiceRoller:
 
         # Prompt the user of the specifications for each die type and add them to the dictionary 
         for i in range(1, num_types + 1):
-            print(f"\n-----Die type {i}-----\n")
-            num_sides = self.get_user_num_input(num_sides_prompt, 2)
-            num_dice = self.get_user_num_input(num_dice_prompt, 1)
-            dice_type_specs[num_sides] = num_dice
-        
+            print(f"\n-----Die type {i}-----") 
+            while True:
+                num_sides = self.get_user_num_input(num_sides_prompt, 2)
+            
+                if num_sides not in dice_type_specs:
+                    num_dice = self.get_user_num_input(num_dice_prompt, 1)
+                    dice_type_specs[num_sides] = num_dice
+                    break
+                else:
+                    print(f"You are already going to be rolling some D{num_sides}s, please add a different type of die.\n")
+
         return dice_type_specs
 
     def create_single_dice_type(self, num_dice, num_sides):
@@ -106,16 +111,16 @@ class DiceRoller:
     def roll_dice_and_display_results(self, num_dice, num_sides, dice):
         """Roll the dice of a specified dice type and display the results"""
         if num_dice > 1:
-            print(f"Rolling your D{num_sides}s...")
-            print(f"Your dice rolled a total of {self.roll_single_dice_type(num_dice, dice)}")
+            print(f"Rolling your D{num_sides}s...\n")
+            print(f"Your dice rolled a total of {self.roll_single_dice_type(num_dice, dice)}\n")
         else:
-            print(f"Rolling your D{num_sides}...")
-            print(f"Your die rolled a {self.roll_single_dice_type(num_dice, dice)}")
+            print(f"Rolling your D{num_sides}...\n")
+            print(f"Your die rolled a {self.roll_single_dice_type(num_dice, dice)}\n")
     
     def ask_to_roll_again(self):
         """Ask the user if they want to roll again"""
         prompt = "Would you like to roll more dice? (y/n): "
         roll_again = self.get_user_input_y_n(prompt)
         if roll_again == False:
-            print("Goodbye!")
+            print("\nGoodbye!\n")
             exit()
