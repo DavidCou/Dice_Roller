@@ -20,8 +20,8 @@ class DiceRoller:
                 # Prompt the user for the dice specifications
                 num_sides_prompt = "\nHow many sides should each die have? (Enter a whole number greater than 1): "  
                 num_dice_prompt = "How many dice would you like to roll? (Enter a whole number greater than 0): "
-                num_sides = self.get_user_num_input(num_dice_prompt, 2)
-                num_dice = self.get_user_num_input(num_sides_prompt, 1)
+                num_sides = self.get_user_num_input(num_sides_prompt, 2)
+                num_dice = self.get_user_num_input(num_dice_prompt, 1)
                 
                 # Create and roll the dice
                 dice = self.create_single_dice_type(num_dice, num_sides)
